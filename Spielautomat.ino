@@ -15,6 +15,8 @@
 
 #define POWER 12
 
+char pin_string[8];
+
 void pressBtn(uint8_t btn) {
   digitalWrite(btn, LOW);
   delay(DELAY);
@@ -57,10 +59,33 @@ void setup() {
   }
   // Enable Relais
   pinMode(POWER, HIGH);
+
+  Serial.begin(9600);
+
+  Serial.setTimeout(1000 * 60 * 60);
 }
 
 // the loop function runs over and over again forever
 void loop() {
+  Serial.flush();
+  Serial.println("PIN?");
+
+  if(Serial.readBytesUntil(';', pin_string, sizeof(pin_string)) == 0) return;
+
+  int pin = atoi(pin_string);
+  // Pin zerlegen
+  int a = (pin / 1000) % 10;
+  int b = (pin / 100) % 10;
+  int c = (pin / 10) % 10;
+  int d = (pin / 1) % 10;
+
+  Serial.print("DIAL ");
+
+  Serial.print(a);
+  Serial.print(b);
+  Serial.print(c);
+  Serial.print(d);
+  Serial.println();
   
   // Initialisierung
   // Batterie Reset
@@ -77,13 +102,15 @@ void loop() {
   pressBtn(CODE);
 
   // Code Eingabe
-  dialCode(0, 4, 2, 0);
+  dialCode(a, b, c, d);
 
+  delay(1000);
+
+  Serial.println("OK");
   delay(5000);
 
   // Kiste aus
   digitalWrite(POWER, LOW);
-  while(1);
   
  
 }
